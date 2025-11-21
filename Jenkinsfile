@@ -13,10 +13,25 @@ pipeline {
         }
         stage("npm Dependancy Audit") {
             steps {
-                sh '''
-                     npm audit --audit-level=critical
-                     echo $?
-                     '''
+                sh 'npm audit --audit-level=critical'
+                echo $?
+           }
+        }
+        stage("OWASP Dependancy Check") {
+            steps {
+                stage('OWASP Dependency Check') {
+    steps {
+        dependencyCheck additionalArguments: '''
+            --scan .
+            --out odc-report
+            --format ALL
+            --prettyPrint
+        ''',
+        odcInstallation: 'dependancy-check-12.1.9'
+    }
+}
+
+          
            }
         }
     }
