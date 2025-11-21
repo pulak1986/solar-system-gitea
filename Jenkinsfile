@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage("Check Node and NPM Version") {
             steps {
-                sh 'npm install --no-audit"
+                sh 'npm install --no-audit'
            }
         }
     }
