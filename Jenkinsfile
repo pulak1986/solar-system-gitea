@@ -24,6 +24,7 @@ pipeline {
 
                 stage("OWASP Dependency Check") {
                     steps {
+                        sh 'mkdir -p odc-report'
                         dependencyCheck additionalArguments: '''
                             --scan .
                             --out odc-report
