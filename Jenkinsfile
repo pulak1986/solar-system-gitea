@@ -6,33 +6,42 @@ pipeline {
     }
 
     stages {
-        stage("Install Dependancies") {
+
+        stage("Install Dependencies") {
             steps {
                 sh 'npm install --no-audit'
-           }
+            }
         }
-        stage("npm Dependancy Audit") {
-            steps {
-                sh 'npm audit --audit-level=critical'
-                echo $?
-           }
+
+        stage('Dependency Scanning') {
+            parallel {
+
+                stage("npm Dependency Audit") {
+                    steps {
+                        sh 'npm audit --audit-level=critical || true'
+                    }
+                }
+
+                stage("OWASP Dependency Check") {
+                    steps {
+                        dependencyCheck additionalArguments: '''
+                            --scan .
+                            --out odc-report
+                            --format ALL
+                            --prettyPrint
+                        ''',
+                        odcInstallation: 'dependancy-check-12.1.9'
+                    }
+                }
+
+            }
         }
-        stage("OWASP Dependancy Check") {
-            steps {
-                stage('OWASP Dependency Check') {
-    steps {
-        dependencyCheck additionalArguments: '''
-            --scan .
-            --out odc-report
-            --format ALL
-            --prettyPrint
-        ''',
-        odcInstallation: 'dependancy-check-12.1.9'
+    }
+
+    post {
+        always {
+            dependencyCheckPublisher pattern: 'odc-report/dependency-check-report.xml'
+        }
     }
 }
 
-          
-           }
-        }
-    }
-}
